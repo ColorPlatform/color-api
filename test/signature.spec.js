@@ -12,13 +12,13 @@ describe(`Signing`, () => {
         value: {
           inputs: [
             {
-              address: `colors1qperwt9wrnkg5k9e5gzfgjppzpqhyav5j24d66`,
+              address: `color1qperwt9wrnkg5k9e5gzfgjppzpqhyav5j24d66`,
               coins: [{ denom: `CLR`, amount: `1` }]
             }
           ],
           outputs: [
             {
-              address: `colors1yeckxz7tapz34kjwnjxvmxzurerquhtrmxmuxt`,
+              address: `color1yeckxz7tapz34kjwnjxvmxzurerquhtrmxmuxt`,
               coins: [{ denom: `CLR`, amount: `1` }]
             }
           ]
@@ -27,7 +27,8 @@ describe(`Signing`, () => {
     ],
     fee: { amount: [{ denom: ``, amount: `0` }], gas: `21906` },
     signatures: null,
-    memo: ``
+    memo: ``,
+    nonce: `0`
   }
   const txWithNulls = {
     msg: [
@@ -36,14 +37,14 @@ describe(`Signing`, () => {
         value: {
           inputs: [
             {
-              address: `colors1qperwt9wrnkg5k9e5gzfgjppzpqhyav5j24d66`,
+              address: `color1qperwt9wrnkg5k9e5gzfgjppzpqhyav5j24d66`,
               coins: [{ denom: `CLR`, amount: `1` }]
             }
           ],
           outputs: [
             {
               x: undefined,
-              address: `colors1yeckxz7tapz34kjwnjxvmxzurerquhtrmxmuxt`,
+              address: `color1yeckxz7tapz34kjwnjxvmxzurerquhtrmxmuxt`,
               coins: [{ denom: `CLR`, amount: `1` }]
             }
           ]
@@ -52,7 +53,8 @@ describe(`Signing`, () => {
     ],
     fee: { amount: [{ denom: ``, amount: `0` }], gas: `21906` },
     signatures: null,
-    memo: ``
+    memo: ``,
+    nonce: `0`
   }
 
   it(`createSignature`, () => {
@@ -73,12 +75,11 @@ describe(`Signing`, () => {
 
     vectors.forEach(({ signature, sequence, account_number, publicKey }) =>
       expect(
-        createSignature(signature, sequence, account_number, publicKey)
+        createSignature(signature, account_number, publicKey)
       ).toMatchObject({
         signature: signature.toString(`base64`),
         account_number,
-        sequence,
-        pub_key: {
+          pub_key: {
           type: `tendermint/PubKeySecp256k1`,
           value: publicKey.toString(`base64`)
         }
@@ -93,21 +94,21 @@ describe(`Signing`, () => {
         sequence: `0`,
         accountNumber: `1`,
         chainId: `tendermint_test`,
-        signMessage: `{"account_number":"1","chain_id":"tendermint_test","fee":{"amount":[{"amount":"0","denom":""}],"gas":"21906"},"memo":"","msgs":[{"type":"color/Send","value":{"inputs":[{"address":"colors1qperwt9wrnkg5k9e5gzfgjppzpqhyav5j24d66","coins":[{"amount":"1","denom":"CLR"}]}],"outputs":[{"address":"colors1yeckxz7tapz34kjwnjxvmxzurerquhtrmxmuxt","coins":[{"amount":"1","denom":"CLR"}]}]}}],"sequence":"0"}`
+        signMessage: `{"account_number":"1","chain_id":"tendermint_test","fee":{"amount":[{"amount":"0","denom":""}],"gas":"21906"},"memo":"","msgs":[{"type":"color/Send","value":{"inputs":[{"address":"color1qperwt9wrnkg5k9e5gzfgjppzpqhyav5j24d66","coins":[{"amount":"1","denom":"CLR"}]}],"outputs":[{"address":"color1yeckxz7tapz34kjwnjxvmxzurerquhtrmxmuxt","coins":[{"amount":"1","denom":"CLR"}]}]}}],"nonce":"0"}`
       },
       {
         tx: txWithNulls,
         sequence: `0`,
         accountNumber: `1`,
         chainId: `tendermint_test`,
-        signMessage: `{"account_number":"1","chain_id":"tendermint_test","fee":{"amount":[{"amount":"0","denom":""}],"gas":"21906"},"memo":"","msgs":[{"type":"color/Send","value":{"inputs":[{"address":"colors1qperwt9wrnkg5k9e5gzfgjppzpqhyav5j24d66","coins":[{"amount":"1","denom":"CLR"}]}],"outputs":[{"address":"colors1yeckxz7tapz34kjwnjxvmxzurerquhtrmxmuxt","coins":[{"amount":"1","denom":"CLR"}]}]}}],"sequence":"0"}`
+        signMessage: `{"account_number":"1","chain_id":"tendermint_test","fee":{"amount":[{"amount":"0","denom":""}],"gas":"21906"},"memo":"","msgs":[{"type":"color/Send","value":{"inputs":[{"address":"color1qperwt9wrnkg5k9e5gzfgjppzpqhyav5j24d66","coins":[{"amount":"1","denom":"CLR"}]}],"outputs":[{"address":"color1yeckxz7tapz34kjwnjxvmxzurerquhtrmxmuxt","coins":[{"amount":"1","denom":"CLR"}]}]}}],"nonce":"0"}`
       }
     ]
 
     vectors.forEach(
       ({ tx, sequence, accountNumber, chainId, signMessage }) => {
         expect(
-          createSignMessage(tx, { sequence, accountNumber, chainId })
+          createSignMessage(tx, { accountNumber, chainId })
         ).toBe(signMessage)
       }
     )

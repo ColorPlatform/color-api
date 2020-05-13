@@ -4,15 +4,15 @@ The SDK expects a certain message format to serialize and then sign.
 type StdSignMsg struct {
   ChainID       string      `json:"chain_id"`
   AccountNumber uint64      `json:"account_number"`
-  Sequence      uint64      `json:"sequence"`
   Fee           auth.StdFee `json:"fee"`
   Msgs          []sdk.Msg   `json:"msgs"`
   Memo          string      `json:"memo"`
+  Nonce         uint64      `json:"nonce"`
 }
 */
 export function createSignMessage (
   jsonTx,
-  { sequence, accountNumber, chainId }
+  { accountNumber, chainId }
 ) {
   // sign bytes need amount to be an array
   const fee = {
@@ -24,8 +24,8 @@ export function createSignMessage (
     removeEmptyProperties({
       fee,
       memo: jsonTx.memo,
+      nonce: jsonTx.nonce,
       msgs: jsonTx.msg, // weird msg vs. msgs
-      sequence,
       account_number: accountNumber,
       chain_id: chainId
     })
@@ -34,14 +34,12 @@ export function createSignMessage (
 
 export function createSignature (
   signature,
-  sequence,
   accountNumber,
   publicKey
 ) {
   return {
     signature: signature.toString(`base64`),
     account_number: accountNumber,
-    sequence,
     pub_key: {
       type: `tendermint/PubKeySecp256k1`, // TODO: allow other keytypes
       value: publicKey.toString(`base64`)

@@ -15,11 +15,11 @@ import * as MessageConstructors from './messages'
 * await included()
 */
 
-export default class Cosmos {
+export default class Color {
   constructor (cosmosRESTURL, chainId = undefined) {
     this.url = cosmosRESTURL
     this.get = {}
-    this.accounts = {} // storing sequence numbers to not send two transactions with the same sequence number
+    this.accounts = {} // Switched from sequence to nonces
     this.chainId = chainId
 
     const getters = _Getters(cosmosRESTURL)
@@ -81,11 +81,11 @@ export default class Cosmos {
   async send (senderAddress, { gas, gasPrices, memo }, messages, signer) {
     const chainId = await this.setChainId()
     const { sequence, accountNumber } = await this.getAccount(senderAddress)
-
+    const nonce = Math.floor(Math.random() * 10e9); 
     const {
       hash,
       included
-    } = await send({ gas, gasPrices, memo }, messages, signer, this.url, chainId, accountNumber, sequence)
+    } = await send({ gas, gasPrices, memo }, messages, signer, this.url, chainId, accountNumber, nonce)
     this.accounts[senderAddress].sequence += 1
 
     return {
@@ -99,7 +99,8 @@ export default class Cosmos {
     const chainId = await this.setChainId()
     const { sequence, accountNumber } = await this.getAccount(senderAddress)
 
-    return simulate(this.url, senderAddress, chainId, message, memo, sequence, accountNumber)
+    const nonce = Math.floor(Math.random() * 10e9); 
+    return simulate(this.url, senderAddress, chainId, message, memo, accountNumber, nonce)
   }
 }
 

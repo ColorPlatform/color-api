@@ -4,8 +4,8 @@ import { createSignMessage, createSignature } from './signature'
 
 const DEFAULT_GAS_PRICE = [{ amount: (2.5e-8).toFixed(9), denom: `uatom` }]
 
-export default async function send ({ gas, gasPrices = DEFAULT_GAS_PRICE, memo = `` }, messages, signer, cosmosRESTURL, chainId, accountNumber, sequence) {
-  const signedTx = await createSignedTransaction({ gas, gasPrices, memo }, messages, signer, chainId, accountNumber, sequence)
+export default async function send ({ gas, gasPrices = DEFAULT_GAS_PRICE, memo = `` }, messages, signer, cosmosRESTURL, chainId, accountNumber, nonce) {
+  const signedTx = await createSignedTransaction({ gas, gasPrices, memo }, messages, signer, chainId, accountNumber, nonce)
 
   // broadcast transaction with signatures included
   const body = createBroadcastBody(signedTx, `sync`)
@@ -20,10 +20,10 @@ export default async function send ({ gas, gasPrices = DEFAULT_GAS_PRICE, memo =
   }
 }
 
-export async function createSignedTransaction ({ gas, gasPrices = DEFAULT_GAS_PRICE, memo = `` }, messages, signer, chainId, accountNumber, sequence) {
+export async function createSignedTransaction ({ gas, gasPrices = DEFAULT_GAS_PRICE, memo = `` }, messages, signer, chainId, accountNumber, nonce) {
   // sign transaction
-  const stdTx = createStdTx({ gas, gasPrices, memo }, messages)
-  const signMessage = createSignMessage(stdTx, { sequence, accountNumber, chainId })
+  const stdTx = createStdTx({ gas, gasPrices, memo }, messages, nonce)
+  const signMessage = createSignMessage(stdTx, { accountNumber, chainId })
   let signature, publicKey
   try {
     ({ signature, publicKey } = await signer(signMessage))
@@ -31,7 +31,7 @@ export async function createSignedTransaction ({ gas, gasPrices = DEFAULT_GAS_PR
     throw new Error('Signing failed: ' + err.message)
   }
 
-  const signatureObject = createSignature(signature, sequence, accountNumber, publicKey)
+  const signatureObject = createSignature(signature, accountNumber, publicKey)
   const signedTx = createSignedTransactionObject(stdTx, signatureObject)
 
   return signedTx

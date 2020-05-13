@@ -77,10 +77,11 @@ const stdTx = {
   ],
   fee: { amount: [{ denom: ``, amount: `0` }], gas: `21906` },
   signatures: null,
-  memo: ``
+  memo: ``,
+  nonce: `12345`
 }
 
-const signMessage = createSignMessage(stdTx, { sequence, accountNumber, chainId });
+const signMessage = createSignMessage(stdTx, { accountNumber, chainId });
 const signature = signWithPrivateKey(signMessage, Buffer.from(wallet.privateKey, 'hex'));
 ```
 
@@ -110,5 +111,5 @@ const sendMsg = {
 
 const signer = signMessage = > signWithPrivateKey(signMessage, Buffer.from(wallet.privateKey, 'hex'))
 
-const signMessage = createSignedTransaction({ gas: 1000, gasPrices = [{ amount: "10", denom: "uatom" }], memo = `Hi from Color Platform` }, [sendMsg], signer, chainId: "test-chain", accountNumber: 0, sequence: 12);
+const signMessage = createSignedTransaction({ gas: 1000, gasPrices = [{ amount: "10", denom: "uatom" }], memo = `Hi from Color Platform` }, [sendMsg], signer, chainId: "test-chain", accountNumber: 0, nonce: 12);
 ```
