@@ -1,6 +1,6 @@
 {
   "name": "@colorplatformjs/color-api",
-  "version": "2.3.0-rc",
+  "version": "2.3.1-rc",
   "description": "Wrapper around getting and sending transactions from and to applications build on top of the Color SDK",
   "main": "lib/color.js",
   "scripts": {
