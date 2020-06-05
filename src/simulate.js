@@ -8,8 +8,8 @@ export default async function simulate (
   chainId,
   msg,
   memo,
-  sequence,
-  accountNumber
+  accountNumber,
+  nonce
 ) {
   const type = msg.type
   const path = {
@@ -24,22 +24,23 @@ export default async function simulate (
   }[type]()
   const url = `${cosmosRESTURL}${path}`
 
-  const tx = createRESTPOSTObject(senderAddress, chainId, { sequence, accountNumber, memo }, msg)
+  const tx = createRESTPOSTObject(senderAddress, chainId, { accountNumber, memo, nonce }, msg)
 
   const { gas_estimate: gasEstimate } = await fetch(url, { method: `POST`, body: JSON.stringify(tx) }).then(res => res.json())
   return Math.round(gasEstimate * GAS_ADJUSTMENT)
 }
 
 // attaches the request meta data to the message
-function createRESTPOSTObject (senderAddress, chainId, { sequence, accountNumber, memo }, msg) {
+function createRESTPOSTObject (senderAddress, chainId, { accountNumber, memo, nonceNumber }, msg) {
   const requestMetaData = {
-    sequence,
+    // sequence,
     from: senderAddress,
     account_number: accountNumber,
     chain_id: chainId,
     simulate: true,
-    memo
+    memo,
+    nonce: nonceNumber
   }
-
+  console.log('DEBUG: request metadata:' + JSON.stringify(requestMetaData))
   return { base_req: requestMetaData, ...msg.value }
 }
