@@ -15,7 +15,8 @@ export default async function send ({ gas, gasPrices = DEFAULT_GAS_PRICE, memo =
 
   return {
     hash: res.txhash,
-    sequence,
+    // TODO: remove sequence. It is no longer used because of nonce
+    sequence: 0,
     included: () => queryTxInclusion(res.txhash, cosmosRESTURL)
   }
 }
@@ -24,6 +25,7 @@ export async function createSignedTransaction ({ gas, gasPrices = DEFAULT_GAS_PR
   // sign transaction
   const stdTx = createStdTx({ gas, gasPrices, memo }, messages, nonce)
   const signMessage = createSignMessage(stdTx, { accountNumber, chainId })
+  
   let signature, publicKey
   try {
     ({ signature, publicKey } = await signer(signMessage))
@@ -71,7 +73,7 @@ export async function queryTxInclusion (txHash, cosmosRESTURL, iterations = 60, 
 }
 
 // attaches the request meta data to the message
-export function createStdTx ({ gas, gasPrices, memo }, messages) {
+export function createStdTx ({ gas, gasPrices, memo }, messages, nonce) {
   const fees = gasPrices.map(({ amount, denom }) => ({ amount: String(Math.round(amount * gas)), denom }))
     .filter(({ amount }) => amount > 0)
   return {
@@ -81,7 +83,8 @@ export function createStdTx ({ gas, gasPrices, memo }, messages) {
       gas
     },
     signatures: null,
-    memo
+    memo,
+    nonce
   }
 }
 

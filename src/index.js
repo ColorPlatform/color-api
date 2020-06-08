@@ -2,6 +2,7 @@ import _Getters from './getters'
 import send from './send'
 import simulate from './simulate'
 import * as MessageConstructors from './messages'
+import rnd64 from './rnd64'
 
 /*
 * Sender object to build and send transactions
@@ -32,11 +33,12 @@ export default class Color {
       .forEach(([name, messageConstructor]) => {
         this[name] = function (senderAddress, args) {
           const message = messageConstructor(senderAddress, args)
-
+          const nonce = rnd64()
           return {
             message,
-            simulate: ({ memo = undefined }) => this.simulate(senderAddress, { message, memo }),
-            send: ({ gas, gasPrices, memo = undefined }, signer) => this.send(senderAddress, { gas, gasPrices, memo }, message, signer)
+            nonce: nonce,
+            simulate: ({ memo = undefined }) => this.simulate(senderAddress, { message, memo, nonce }),
+            send: ({ gas, gasPrices, memo = undefined }, signer) => this.send(senderAddress, { gas, gasPrices, memo, nonce }, message, signer)
           }
         }
       })
@@ -78,10 +80,9 @@ export default class Color {
   * message: object
   * signer: async (signMessage: string) => { signature: Buffer, publicKey: Buffer }
   */
-  async send (senderAddress, { gas, gasPrices, memo }, messages, signer) {
+  async send (senderAddress, { gas, gasPrices, memo, nonce }, messages, signer) {
     const chainId = await this.setChainId()
     const { sequence, accountNumber } = await this.getAccount(senderAddress)
-    const nonce = Math.floor(Math.random() * 10e9); 
     const {
       hash,
       included

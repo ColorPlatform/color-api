@@ -41,6 +41,5 @@ function createRESTPOSTObject (senderAddress, chainId, { accountNumber, memo, no
     memo,
     nonce: nonceNumber
   }
-  console.log('DEBUG: request metadata:' + JSON.stringify(requestMetaData))
   return { base_req: requestMetaData, ...msg.value }
 }
